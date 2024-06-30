@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Search Game</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="game-container">
+        <div id="game-board"></div>
+        <div id="word-lists">
+            <h2>Words to Find:</h2>
+            <div id="words-to-find"></div>
+        </div>
+        <div id="congratulations-screen" style="display: none;">
+            <h1>Congratulations!</h1>
+            <p>You've found all the words!</p>
+            <button id="continue-button">Continue</button>
+        </div>
+    </div>
+
+    <script type="module" src="dist/app.js"></script>
+</body>
+</html>
