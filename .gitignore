@@ -38,3 +38,6 @@ coverage/
 
 # Webpack cache
 .webpack/
+
+# Exclude all ZIP files from the root folder
+/*.zip
