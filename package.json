@@ -5,15 +5,33 @@
   "main": "index.html",
   "scripts": {
     "build": "tsc && npm run copy-files",
-    "copy-files": "copyfiles -u 1 src/**/*.html src/**/*.css dist/",
-    "start": "npm run build && http-server dist"
+    "copy-files": "copyfiles -u 1 \"src/**/*.html\" \"src/**/*.css\" dist && copyfiles index.html dist",
+    "start": "npm run build && http-server dist",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["word search", "puzzle game", "browser game", "mobile game", "educational game"],
+  "keywords": [
+    "word search",
+    "puzzle game",
+    "browser game",
+    "mobile game",
+    "educational game"
+  ],
   "author": "Tokele",
   "license": "MIT",
   "devDependencies": {
     "copyfiles": "^2.4.1",
-    "typescript": "^5.5.2",
-    "http-server": "^14.1.1"
-  }
+    "http-server": "^14.1.1",
+    "typescript": "^5.5.2"
+  },
+  "dependencies": {
+    "aws-sdk": "^2.1679.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MikVR7/Hebgames_WordSearch.git"
+  },
+  "bugs": {
+    "url": "https://github.com/MikVR7/Hebgames_WordSearch/issues"
+  },
+  "homepage": "https://github.com/MikVR7/Hebgames_WordSearch#readme"
 }
