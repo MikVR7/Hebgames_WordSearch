@@ -2,24 +2,81 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Word Search Game</title>
-    <link rel="stylesheet" href="dist/styles/styles.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title id="page-title">Cloze</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/dist/styles/styles.css">
 </head>
 <body>
+    <!-- load shared elements -->
+    <script type="module" src="https://d12n4cwg3u8b3y.cloudfront.net/Shared/LoadingScreen.js"></script>
+    <script type="module">
+        import { Tools } from 'https://d12n4cwg3u8b3y.cloudfront.net/Shared/Tools.js';
+        window.Tools = Tools;
+    </script>
+    <script type="module">
+        import { Randomizer } from 'https://d12n4cwg3u8b3y.cloudfront.net/Shared/Randomizer.js';
+        window.Randomizer = Randomizer;
+    </script>            
+
+    <!-- load lib -->
+            
+    <!-- html elements -->
+    <header>
+        <h1>Gitterrätsel</h1>
+        <p>Suche die unten angeführten Wörter im Gitterrätsel!</p>
+    </header>
+
     <div id="game-container">
         <div id="game-board"></div>
         <div id="word-lists">
-            <h2>Words to Find:</h2>
             <div id="words-to-find"></div>
         </div>
-        <div id="congratulations-screen" style="display: none;">
-            <h1>Congratulations!</h1>
-            <p>You've found all the words!</p>
-            <button id="continue-button">Continue</button>
-        </div>
+        <!-- <div id="congratulations-screen" style="display: none;">
+            <h1>Gratuliere!</h1>
+            <p>Du hast alle Wörter gefunden!</p>
+            <button id="continue-button">Weiter</button>
+        </div> -->
+
+       
     </div>
 
-    <script type="module" src="dist/scripts/app.js"></script>
+    <div id="congratulations-content" class="modal">
+        <div class="content">
+            <congrats-header>Gratuliere!</congrats-header>
+            <congrats-text>Du hast alle Wörter gefunden!</congrats-text>
+            <button id="restart-button">Weiter</button>
+        </div>
+    </div>
+<!-- 
+    <div id="congratulations-screen" class="modal">
+        <div class="content">
+            <congrats-header>Gratuliere!</congrats-header>
+            <congrats-text>Tolle Leistung!</congrats-text>
+            <button id="continue-button">Weiter</button>
+            <button id="restart-button">Nochmal spielen</button>
+        </div>
+    </div> -->
+
+    <!-- start game -->
+    <script type="module">
+        import Game from '/dist/scripts/Game.js';
+        document.addEventListener('DOMContentLoaded', () => {
+            const game = new Game();
+            game.start();
+
+            // Use a small delay to ensure all DOM elements are fully rendered
+            setTimeout(() => {
+                // Tools.ManageViewportHeight();
+            }, 100);
+        });
+
+        // Add a resize event listener to handle orientation changes and window resizing
+        window.addEventListener('resize', () => {
+            setTimeout(() => {
+                // Tools.ManageViewportHeight();
+            }, 100);
+        });
+    </script>
 </body>
 </html>

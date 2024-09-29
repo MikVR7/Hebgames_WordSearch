@@ -1,28 +1,22 @@
 type Direction = [number, number];
 
 export class MatrixGenerator {
-    private readonly GRID_SIZE_X: number;
-    private readonly GRID_SIZE_Y: number;
+    
+    private gridSize: [number, number] = [0, 0];
     private readonly DIRECTIONS: Direction[] = [
         [0, 1], [1, 0], [1, 1], [-1, 1],
         [0, -1], [-1, 0], [-1, -1], [1, -1]
     ];
-    private readonly words: string[];
+    private words: string[] = [];
     private readonly MAX_ATTEMPTS = 100;  // Maximum attempts to place a word
 
-    constructor(gridSizeX: number, gridSizeY: number, words: string[]) {
-        this.GRID_SIZE_X = gridSizeX;
-        this.GRID_SIZE_Y = gridSizeY;
+    constructor() { }
+
+    public generate(gridSize: [number, number], words: string[]): { matrix: string[][], placedWords: string[] } {
+        this.gridSize = gridSize;
         this.words = this.filterWords(words);
-    }
 
-    private filterWords(words: string[]): string[] {
-        const maxLength = Math.max(this.GRID_SIZE_X, this.GRID_SIZE_Y);
-        return words.filter(word => word.length <= maxLength);
-    }
-
-    generate(): { matrix: string[][], placedWords: string[] } {
-        let matrix: string[][] = Array(this.GRID_SIZE_Y).fill(null).map(() => Array(this.GRID_SIZE_X).fill(''));
+        let matrix: string[][] = Array(this.gridSize[1]).fill(null).map(() => Array(this.gridSize[0]).fill(''));
         const placedWords: string[] = [];
 
         for (const word of this.words) {
@@ -35,12 +29,17 @@ export class MatrixGenerator {
         return { matrix, placedWords };
     }
 
+    private filterWords(words: string[]): string[] {
+        const maxLength = Math.max(this.gridSize[0], this.gridSize[1]);
+        return words.filter(word => word.length <= maxLength);
+    }
+
     private placeWord(word: string, matrix: string[][]): boolean {
         let attempts = 0;
         while (attempts < this.MAX_ATTEMPTS) {
             const direction = this.DIRECTIONS[Math.floor(Math.random() * this.DIRECTIONS.length)];
-            const startRow = Math.floor(Math.random() * this.GRID_SIZE_Y);
-            const startCol = Math.floor(Math.random() * this.GRID_SIZE_X);
+            const startRow = Math.floor(Math.random() * this.gridSize[1]);
+            const startCol = Math.floor(Math.random() * this.gridSize[0]);
 
             if (this.canPlaceWord(word, startRow, startCol, direction, matrix)) {
                 this.placeWordInMatrix(word, startRow, startCol, direction, matrix);
@@ -56,7 +55,7 @@ export class MatrixGenerator {
         for (let i = 0; i < word.length; i++) {
             const row = startRow + i * direction[0];
             const col = startCol + i * direction[1];
-            if (row < 0 || row >= this.GRID_SIZE_Y || col < 0 || col >= this.GRID_SIZE_X) {
+            if (row < 0 || row >= this.gridSize[1] || col < 0 || col >= this.gridSize[0]) {
                 return false;
             }
             if (matrix[row][col] !== '' && matrix[row][col] !== word[i]) {
@@ -75,8 +74,8 @@ export class MatrixGenerator {
     }
 
     private fillEmptyCells(matrix: string[][]): void {
-        for (let i = 0; i < this.GRID_SIZE_Y; i++) {
-            for (let j = 0; j < this.GRID_SIZE_X; j++) {
+        for (let i = 0; i < this.gridSize[1]; i++) {
+            for (let j = 0; j < this.gridSize[0]; j++) {
                 if (matrix[i][j] === '') {
                     matrix[i][j] = String.fromCharCode(65 + Math.floor(Math.random() * 26));
                 }

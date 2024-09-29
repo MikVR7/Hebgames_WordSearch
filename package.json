@@ -4,9 +4,12 @@
   "description": "A customizable WordSearch game for web browsers and mobile devices",
   "main": "index.html",
   "scripts": {
-    "build": "tsc && npm run copy-files",
+    "clean": "rimraf dist",
+    "build": "npm run clean && tsc && npm run copy-files && npm run copy-lib",
+    "build:ts": "tsc",
     "copy-files": "copyfiles -u 1 \"src/**/*.html\" \"src/**/*.css\" dist && copyfiles index.html dist",
-    "start": "npm run build && http-server dist",
+    "copy-lib": "copyfiles -u 1 \"lib/**/*\" dist/lib",
+    "start": "npm run build && http-server dist -p 5500",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -21,6 +24,7 @@
   "devDependencies": {
     "copyfiles": "^2.4.1",
     "http-server": "^14.1.1",
+    "rimraf": "^5.0.10",
     "typescript": "^5.5.2"
   },
   "dependencies": {

@@ -1,15 +1,16 @@
 export class UIManager {
-    private gameBoard: HTMLElement;
+    private gameBoard: HTMLElement | null;
     private wordsToFindElement: HTMLElement;
     private congratulationsScreen: HTMLElement;
 
-    constructor(gameBoard: HTMLElement, wordsToFindElement: HTMLElement, congratulationsScreen: HTMLElement) {
+    constructor(gameBoard: HTMLElement | null, wordsToFindElement: HTMLElement, congratulationsScreen: HTMLElement) {
         this.gameBoard = gameBoard;
         this.wordsToFindElement = wordsToFindElement;
         this.congratulationsScreen = congratulationsScreen;
     }
 
     renderBoard(matrix: string[][]): void {
+        if(this.gameBoard === null) return;
         this.gameBoard.innerHTML = '';
         const gridSizeX = matrix[0].length;
         const gridSizeY = matrix.length;
@@ -22,14 +23,16 @@ export class UIManager {
             row.forEach((letter, colIndex) => {
                 const letterElement = document.createElement('div');
                 letterElement.className = 'letter';
-                letterElement.textContent = letter;
+                letterElement.textContent = letter.toUpperCase(); // Transform to uppercase
                 letterElement.dataset.row = rowIndex.toString();
                 letterElement.dataset.col = colIndex.toString();
-                this.gameBoard.appendChild(letterElement);
+                if(this.gameBoard !== null) {
+                    this.gameBoard.appendChild(letterElement);
+                }
             });
         });
     }
-
+    
     renderWordList(words: string[], foundWords: string[]): void {
         this.wordsToFindElement.innerHTML = words.map(word => 
             `<span class="word ${foundWords.indexOf(word) !== -1 ? 'found' : ''}">${word}</span>`
@@ -64,9 +67,14 @@ export class UIManager {
         });
     }
 
-    showCongratulationsScreen(): void {
-        this.congratulationsScreen.style.display = 'flex';
-    }
+    // showCongratulationsScreen(): void {
+    //     this.congratulationsScreen.style.display = 'flex';
+
+        public showCongratulationsScreen(): void {
+            this.congratulationsScreen.style.display = "flex";
+    
+        }
+    // }
 
     hideCongratulationsScreen(): void {
         this.congratulationsScreen.style.display = 'none';

@@ -1,40 +1,63 @@
 import { MatrixGenerator } from './MatrixGenerator.js';
 import { UIManager } from './UIManager.js';
+import { DataEntry } from './Data_WordSearch.js';
+import { dataEntries } from './Data_WordSearch.js';
+declare const Tools: any;
+declare const Randomizer: any;
 
-export class WordSearchGame {
-    private readonly GRID_SIZE_X: number;
-    private readonly GRID_SIZE_Y: number;
-    private readonly words: string[];
+export default class Game {
     private uiManager: UIManager;
     private matrixGenerator: MatrixGenerator;
-    private matrix: string[][];
-    private wordsInPuzzle: string[];
-    private foundWords: string[];
-    private selection: [number, number][];
-    private isSelecting: boolean;
-    private selectionDirection: [number, number] | null;
+    private paramText: string;
+    private dataEntries: { [key: string]: DataEntry } = dataEntries;
+    private currentDataEntry!: DataEntry;
+    
+    private matrix: string[][] = [];
+    private wordsInPuzzle: string[] = [];
+    private foundWords: string[] = [];
+    private selection: [number, number][] = [];
+    private isSelecting: boolean = false;
+    private selectionDirection: [number, number] | null = null;
 
-    constructor(gridSizeX: number, gridSizeY: number, words: string[], uiManager: UIManager) {
-        this.GRID_SIZE_X = gridSizeX;
-        this.GRID_SIZE_Y = gridSizeY;
-        this.words = words;
-        this.uiManager = uiManager;
-        this.matrixGenerator = new MatrixGenerator(gridSizeX, gridSizeY, words);
-        this.matrix = [];
-        this.wordsInPuzzle = [];
-        this.foundWords = [];
-        this.selection = [];
-        this.isSelecting = false;
-        this.selectionDirection = null;
+    constructor() {
+        
+        const gameBoard = document.getElementById('game-board') as HTMLElement;
+        const wordsToFindElement = document.getElementById('words-to-find') as HTMLElement;
+        const congratulationsScreen = document.getElementById('congratulations-content') as HTMLElement;
+        const headerElement = document.querySelector('header h1') as HTMLElement;
+        this.uiManager = new UIManager(gameBoard, wordsToFindElement, congratulationsScreen);
+        this.matrixGenerator = new MatrixGenerator();
+        
+        this.paramText = Tools.GetQueryParam('v');
+        if(!this.paramText) {
+            this.paramText = 'test';
+        }
+        if (this.dataEntries[this.paramText]) {
+            this.currentDataEntry = this.dataEntries[this.paramText];
+        } 
+
+        // Set the header text
+        headerElement.textContent = this.currentDataEntry.header;
     }
 
-    initialize(): void {
-        const { matrix, placedWords } = this.matrixGenerator.generate();
+    public start(): void {
+        // Transform wordPool to uppercase
+        const upperCaseWordPool = this.currentDataEntry.wordPool.map(word => word.toUpperCase());
+    
+        // Select only maxWords amount of words randomly
+        const selectedWords = Randomizer.PickRandomElements(upperCaseWordPool, this.currentDataEntry.maxWords);
+    
+        const { matrix, placedWords } = this.matrixGenerator.generate(
+            [this.currentDataEntry.matrixSizeWidth, this.currentDataEntry.matrixSizeHeight],
+            selectedWords
+        );
         this.matrix = matrix;
+        this.foundWords = [];
         this.wordsInPuzzle = this.shuffleArray(placedWords);
         this.uiManager.renderBoard(this.matrix);
         this.uiManager.renderWordList(this.wordsInPuzzle, this.foundWords);
         this.setupEventListeners();
+        this.uiManager.hideCongratulationsScreen();
     }
 
     private shuffleArray(array: string[]): string[] {
@@ -112,7 +135,7 @@ export class WordSearchGame {
             }
         }, { passive: false });
 
-        const continueButton = document.getElementById('continue-button');
+        const continueButton = document.getElementById('restart-button');
         if (continueButton) {
             continueButton.addEventListener('click', () => this.resetGame());
         }
@@ -193,12 +216,6 @@ export class WordSearchGame {
     }
 
     resetGame(): void {
-        const { matrix, placedWords } = this.matrixGenerator.generate();
-        this.matrix = matrix;
-        this.wordsInPuzzle = this.shuffleArray(placedWords);
-        this.foundWords = [];
-        this.uiManager.renderBoard(this.matrix);
-        this.uiManager.renderWordList(this.wordsInPuzzle, this.foundWords);
-        this.uiManager.hideCongratulationsScreen();
+        this.start();
     }
 }

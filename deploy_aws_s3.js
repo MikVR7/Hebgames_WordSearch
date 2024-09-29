@@ -1,5 +1,3 @@
-// prerequisites: install 'npm install aws-sdk'
-
 const { exec } = require('child_process');
 const AWS = require('aws-sdk');
 const fs = require('fs');
@@ -10,14 +8,17 @@ const crypto = require('crypto');
 const S3_BUCKET = 'hebgames.pages';
 const S3_ROOT_FOLDER = 'Games';
 const S3_SUB_FOLDER = 'WordSearch';
-const BUILD_COMMAND = 'npm run build'; // Update this if your build command is different
-const BUILD_OUTPUT_DIR = 'dist'; // Update this if your build output directory is different
-const CLOUDFRONT_DISTRIBUTION_ID = 'E29DUID5IVGWQM'; // Replace with your CloudFront distribution ID
+const BUILD_COMMAND = 'npm run build';
+const BUILD_OUTPUT_DIR = 'dist';
+const CLOUDFRONT_DISTRIBUTION_ID = 'E29DUID5IVGWQM';
+const CLOUDFRONT_DOMAIN = 'd12n4cwg3u8b3y.cloudfront.net';
 
 let S3_FOLDER;
 
+const deploymentTimestamp = new Date().toISOString().replace(/[-:T]/g, '').slice(0, 14);
+
 // Configure AWS SDK
-AWS.config.update({ region: 'eu-central-1' }); // Update with your AWS region
+AWS.config.update({ region: 'eu-central-1' });
 const s3 = new AWS.S3();
 const cloudfront = new AWS.CloudFront();
 
@@ -44,23 +45,27 @@ async function deleteExistingFiles() {
         Prefix: S3_FOLDER
     };
 
-    const listedObjects = await s3.listObjectsV2(listParams).promise();
+    let listedObjects;
+    do {
+        listedObjects = await s3.listObjectsV2(listParams).promise();
 
-    if (listedObjects.Contents.length === 0) return;
+        if (listedObjects.Contents.length === 0) break;
 
-    const deleteParams = {
-        Bucket: S3_BUCKET,
-        Delete: { Objects: [] }
-    };
+        const deleteParams = {
+            Bucket: S3_BUCKET,
+            Delete: { Objects: [] }
+        };
 
-    listedObjects.Contents.forEach(({ Key }) => {
-        deleteParams.Delete.Objects.push({ Key });
-    });
+        listedObjects.Contents.forEach(({ Key }) => {
+            deleteParams.Delete.Objects.push({ Key });
+        });
 
-    await s3.deleteObjects(deleteParams).promise();
+        await s3.deleteObjects(deleteParams).promise();
 
-    // Handle pagination if there are more than 1000 objects
-    if (listedObjects.IsTruncated) await deleteExistingFiles();
+        listParams.ContinuationToken = listedObjects.NextContinuationToken;
+    } while (listedObjects.IsTruncated);
+
+    console.log(`All files in ${S3_BUCKET}/${S3_FOLDER} have been deleted.`);
 }
 
 // Function to ensure index.html starts with <!DOCTYPE html>
@@ -75,60 +80,143 @@ function ensureDoctype(content, filePath) {
     return content;
 }
 
-// Function to generate a cache-busting version
-function generateVersion() {
-    return crypto.randomBytes(8).toString('hex');
+// Function to generate a content-based hash
+function generateContentHash(content) {
+    return crypto.createHash('md5').update(content).digest('hex').substring(0, 8);
 }
 
-// Function to process file content and replace paths
-function processFileContent(content, filePath, version) {
+function processFileContent(content, filePath) {
     const fileExt = path.extname(filePath).toLowerCase();
     
     if (['.html', '.js', '.css'].includes(fileExt)) {
-        // Replace "dist/" with the S3_FOLDER path, maintaining the rest of the path
-        content = content.replace(/dist\//g, S3_FOLDER);
+        console.log(`Processing file: ${filePath}`);
+        let originalContent = content;
         
-        // Add version to asset URLs, ensuring correct path structure
+        // Replace relative paths with full CloudFront URLs
         content = content.replace(
-            /(src|href)="([^"]+\.(js|css))"/g, 
+            /(src|href)=["']((?!http:\/\/|https:\/\/)([^"']+\.(js|css|png|jpg|gif|svg)))["']/g, 
             (match, attr, url) => {
-                // Skip absolute URLs or links to http/https pages
-                if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('/')) {
-                    return `${attr}="${url}?v=${version}"`;
-                }
-                // For relative paths, ensure we don't add a second S3_FOLDER
-                if (url.startsWith(S3_FOLDER)) {
-                    return `${attr}="/${url}?v=${version}"`;
-                }
-                // For other relative paths, add S3_FOLDER and version
-                return `${attr}="/${S3_FOLDER}${url}?v=${version}"`;
+                // Remove leading slash if present
+                url = url.replace(/^\//, '');
+                // Remove 'dist/' from the beginning of the URL if present
+                url = url.replace(/^dist\//, '');
+                let newUrl = `https://${CLOUDFRONT_DOMAIN}/${S3_FOLDER}${url}?v=${deploymentTimestamp}`;
+                console.log(`Updated URL: ${match} -> ${attr}="${newUrl}"`);
+                return `${attr}="${newUrl}"`;
             }
         );
+        
+        // Add versioning to import statements in JavaScript files
+        if (fileExt === '.js') {
+            content = content.replace(
+                /import\s+(?:(\{[^}]+\})|(\w+)|\*\s+as\s+(\w+))\s+from\s+['"](.+?)['"];?/g,
+                (match, namedImports, defaultImport, namespaceImport, importPath) => {
+                    if (!importPath.startsWith('http') && !importPath.includes('?')) {
+                        // Remove leading './' if present
+                        importPath = importPath.replace(/^\.\//, '');
+                        // Construct the full path including 'scripts/' directory
+                        let newImportPath = `https://${CLOUDFRONT_DOMAIN}/${S3_FOLDER}scripts/${importPath}?v=${deploymentTimestamp}`;
+                        let importStatement = `import `;
+                        if (namedImports) {
+                            importStatement += `${namedImports} `;
+                        } else if (defaultImport) {
+                            importStatement += `${defaultImport} `;
+                        } else if (namespaceImport) {
+                            importStatement += `* as ${namespaceImport} `;
+                        }
+                        importStatement += `from "${newImportPath}";`;
+                        console.log(`Updated import: ${match} -> ${importStatement}`);
+                        return importStatement;
+                    }
+                    return match;
+                }
+            );
+            console.log(`Processed imports in ${filePath}`);
+        }
+        
+        // Add versioning to external URLs in HTML files
+        if (fileExt === '.html') {
+            content = content.replace(
+                /(src|href|import)=["'](https:\/\/d12n4cwg3u8b3y\.cloudfront\.net\/[^"']+)["']/g,
+                (match, attr, url) => {
+                    if (!url.includes('?')) {
+                        let newUrl = `${url}?v=${deploymentTimestamp}`;
+                        console.log(`Updated external URL: ${match} -> ${attr}="${newUrl}"`);
+                        return `${attr}="${newUrl}"`;
+                    }
+                    return match;
+                }
+            );
+
+            // Add versioning to import statements in HTML files
+            content = content.replace(
+                /import\s+(\{[^}]+\})\s+from\s+['"](https:\/\/d12n4cwg3u8b3y\.cloudfront\.net\/[^"']+)['"];?/g,
+                (match, namedImports, importPath) => {
+                    if (!importPath.includes('?')) {
+                        let newImportPath = `${importPath}?v=${deploymentTimestamp}`;
+                        let importStatement = `import ${namedImports} from "${newImportPath}";`;
+                        console.log(`Updated import: ${match} -> ${importStatement}`);
+                        return importStatement;
+                    }
+                    return match;
+                }
+            );
+
+            // Add versioning to all imports in HTML files
+            content = content.replace(
+                /import\s+(?:(\{[^}]+\})|(\w+)|\*\s+as\s+(\w+))\s+from\s+['"](\/dist\/[^"']+)['"];?/g,
+                (match, namedImports, defaultImport, namespaceImport, importPath) => {
+                    let newImportPath = `https://${CLOUDFRONT_DOMAIN}/${S3_FOLDER}${importPath.replace(/^\/dist\//, '')}?v=${deploymentTimestamp}`;
+                    let importStatement = `import `;
+                    if (namedImports) {
+                        importStatement += `${namedImports} `;
+                    } else if (defaultImport) {
+                        importStatement += `${defaultImport} `;
+                    } else if (namespaceImport) {
+                        importStatement += `* as ${namespaceImport} `;
+                    }
+                    importStatement += `from "${newImportPath}";`;
+                    console.log(`Updated import: ${match} -> ${importStatement}`);
+                    return importStatement;
+                }
+            );
+        }
+
+        if (content !== originalContent) {
+            console.log(`File ${filePath} was modified.`);
+        } else {
+            console.log(`File ${filePath} was not modified.`);
+        }
     }
     
-    // Ensure DOCTYPE for index.html files
     content = ensureDoctype(content, filePath);
     
     return content;
 }
 
-// Function to upload a file to S3
-function uploadFileToS3(filePath, s3Key, version) {
+function uploadFileToS3(filePath, s3Key) {
     return new Promise((resolve, reject) => {
-        fs.readFile(filePath, 'utf8', (err, fileContent) => {
+        fs.readFile(filePath, (err, fileContent) => {
             if (err) {
                 console.error(`Error reading file ${filePath}: ${err}`);
                 reject(err);
                 return;
             }
 
-            fileContent = processFileContent(fileContent, filePath, version);
+            const contentType = getContentType(filePath);
+            const isHtml = contentType === 'text/html';
+            const isJs = filePath.endsWith('.js');
+
+            if (isHtml || isJs || filePath.endsWith('.css')) {
+                fileContent = processFileContent(fileContent.toString(), filePath);
+            }
 
             const params = {
                 Bucket: S3_BUCKET,
                 Key: s3Key,
                 Body: fileContent,
-                ContentType: getContentType(filePath)
+                ContentType: contentType,
+                CacheControl: isHtml || isJs ? 'no-cache, no-store, must-revalidate' : 'public, max-age=31536000, immutable'
             };
 
             s3.upload(params, (err, data) => {
@@ -143,7 +231,6 @@ function uploadFileToS3(filePath, s3Key, version) {
         });
     });
 }
-
 
 // Function to get content type based on file extension
 function getContentType(filePath) {
@@ -163,7 +250,7 @@ function getContentType(filePath) {
 }
 
 // Function to recursively upload directory contents
-async function uploadDirectory(dirPath, s3Prefix, version) {
+async function uploadDirectory(dirPath, s3Prefix, contentVersions) {
     const files = fs.readdirSync(dirPath);
 
     for (const file of files) {
@@ -171,15 +258,35 @@ async function uploadDirectory(dirPath, s3Prefix, version) {
         const s3Key = path.join(s3Prefix, file).replace(/\\/g, '/').replace(/^dist\//, '');
 
         if (fs.statSync(filePath).isDirectory()) {
-            await uploadDirectory(filePath, s3Key, version);
+            await uploadDirectory(filePath, s3Key, contentVersions);
         } else {
-            // Skip .map files
             if (!filePath.endsWith('.map')) {
-                await uploadFileToS3(filePath, s3Key, version);
+                await uploadFileToS3(filePath, s3Key, contentVersions);
             } else {
                 console.log(`Skipping ${filePath} (source map file)`);
             }
         }
+    }
+}
+
+// Function to create a CloudFront invalidation
+async function createInvalidation() {
+    const params = {
+        DistributionId: CLOUDFRONT_DISTRIBUTION_ID,
+        InvalidationBatch: {
+            CallerReference: Date.now().toString(),
+            Paths: {
+                Quantity: 1,
+                Items: ['/*']
+            }
+        }
+    };
+
+    try {
+        const data = await cloudfront.createInvalidation(params).promise();
+        console.log(`Invalidation created: ${data.Invalidation.Id}`);
+    } catch (error) {
+        console.error('Error creating invalidation:', error);
     }
 }
 
@@ -204,19 +311,22 @@ async function listInvalidations() {
 // Main deploy function
 async function deploy() {
     try {
-        S3_FOLDER = S3_ROOT_FOLDER + '/' + S3_SUB_FOLDER + '/';
+        S3_FOLDER = `${S3_ROOT_FOLDER}/${S3_SUB_FOLDER}/`;
 
         console.log('Starting build process...');
         await runBuild();
-
-        const version = generateVersion();
-        console.log(`Generated version: ${version}`);
 
         console.log('Build complete. Deleting existing files in S3...');
         await deleteExistingFiles();
 
         console.log('Starting upload to S3...');
-        await uploadDirectory(BUILD_OUTPUT_DIR, S3_FOLDER, version);
+        const contentVersions = {};
+        await uploadDirectory(BUILD_OUTPUT_DIR, S3_FOLDER, contentVersions);
+
+        console.log('Content versions:', contentVersions);
+
+        console.log('Creating CloudFront invalidation...');
+        await createInvalidation();
 
         console.log('Listing recent invalidations...');
         await listInvalidations();
@@ -232,7 +342,6 @@ async function deploy() {
         }
     }
 }
-
 
 // Run the deploy function
 deploy();

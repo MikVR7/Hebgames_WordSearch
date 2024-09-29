@@ -1,12 +1,52 @@
-body {
-    font-family: Arial, sans-serif;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background-color: #f0f0f0;
+html, body {
     margin: 0;
-    padding: 20px;
-    min-height: 100vh;
+    padding: 0px;
+    height: 100%;
+    /* overflow: hidden; */
+    font-family: 'Open Sans', sans-serif;
+    background-color: #FCE4D6;
+    background-image: url("data:image/svg+xml,%3Csvg width='52' height='26' viewBox='0 0 52 26' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23f7d6c1' fill-opacity='0.4'%3E%3Cpath d='M10 10c0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6h2c0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4v2c-3.314 0-6-2.686-6-6 0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6zm25.464-1.95l8.486 8.486-1.414 1.414-8.486-8.486 1.414-1.414z' /%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    color: #3D5A80;
+    font-size: 14px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-direction: column;
+    gap: 10px;
+}
+/* 
+html {
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+} */
+
+/* body {
+    display: flex;
+    gap: 10px;
+} */
+
+#game-header {
+    text-align: center;
+    margin-bottom: 20px;
+    max-width: 800px;
+}
+
+h1 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #5B8C8C;
+    margin: 0.3rem 0;
+    text-align: center;
+}
+
+p {
+    font-style: italic;
+    font-size: 12px;
+    padding: 0px 10px;
+    margin: 0px 0;
+    text-align: center;
 }
 
 #game-container {
@@ -15,6 +55,11 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
+    /* background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); */
 }
 
 #game-board {
@@ -22,9 +67,15 @@ body {
     gap: 2px;
     background-color: #f0f0f0;
     padding: 10px;
-    border-radius: 5px;
+    border-radius: 10px;
     margin: 0 auto;
     justify-content: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transform: scale(1.0);
+    /* background-image: url('https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0'); Example image URL */
+    background-size:initial; /* Adjust the size of the background image */
+    background-position: center; /* Center the background image */
+    opacity: 0.8; /* Adjust the opacity to make it slightly visible */
 }
 
 .letter {
@@ -33,11 +84,13 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: white;
+    background-color: #ffffff;
     border: 1px solid #ddd;
     font-weight: bold;
+    font-size:large;
     cursor: pointer;
     user-select: none;
+    border-radius: 12px;
 }
 
 .letter.selected {
@@ -45,7 +98,7 @@ body {
 }
 
 .letter.found {
-    background-color: #c6f6d5;
+    background-color: #afdabc;
 }
 
 .letter.temp-selected {
@@ -57,15 +110,32 @@ body {
 }
 
 #word-lists {
-    width: 100%;
+    /* width: 100%; */
+    /* display: flex; */
+    /* justify-content: space-between; */
+    /* margin-top: 20px; */
+    margin: 20px;
+    
+    background-color: #B8D8D8;
+    padding: 10px;
+    border: 2px solid #7AA5A5;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 0px;
     display: flex;
-    justify-content: space-between;
-    margin-top: 20px;
+    justify-content: center;
+    align-content: center;
+    min-height: 50px; /* Ensure a minimum height */
+    flex-wrap: wrap; /* Allow words to wrap within the container */
+    position: relative; /* Ensure the modal is positioned correctly */
 }
 
 #words-to-find, #found-words {
     flex: 1;
     margin: 0 10px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content:center;
 }
 
 h2 {
@@ -73,6 +143,7 @@ h2 {
 }
 
 .word {
+    font-weight: 600;
     display: inline-block;
     padding: 5px 10px;
     background-color: #e2e8f0;
@@ -83,12 +154,12 @@ h2 {
 }
 
 .word.found {
-    background-color: #c6f6d5;
+    background-color: #afdabc;
     text-decoration: line-through;
     opacity: 0.6;
 }
 
-#congratulations-screen {
+/* #congratulations-screen {
     position: fixed;
     top: 0;
     left: 0;
@@ -121,4 +192,102 @@ h2 {
 
 #continue-button:hover {
     background-color: #3182ce;
+} */
+
+/* Congratulations content styles */
+#congratulations-content {
+    display: none; /* Use flexbox to center the content */
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+    position: absolute; /* Position relative to the puzzle-area */
+    top: 75%; /* Move to the center vertically */
+    left: 50%; /* Move to the center horizontally */
+    transform: translate(-50%, -75%); /* Adjust position to be centered */
+    z-index: 100; /* Ensure it appears above everything */
+    width: 100%; /* Ensure it takes up the full width of its container */
+    max-width: 100%; /* Ensure it doesn't exceed the container's width */
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+    padding: 20px;
+}
+
+#congratulations-content .content {
+    background-color: #FFFFFF;
+    padding: 10px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    width: 100%; /* Ensure the content takes up the full width of the parent */
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+}
+
+.content > * {
+    padding: 5px;
+    display: block;
+    flex-wrap: nowrap;
+    flex-direction: column;
+    align-items: center;
+    justify-content:center;
+}
+
+congrats-header {
+    display: block; /* Ensure it behaves like a block element */
+    font-size: 1.4rem;
+    font-weight: bold; /* Ensures the text is bold */
+    color: #3D5A80;
+    margin-bottom: 0px;
+}
+
+#congrats-text {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #3D5A80;
+    margin-bottom: 15px;
+}
+
+#congratulations-content #continue-button {
+    background-color: #B8D8D8;
+    color: #3D5A80;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 8px;
+    margin-top: 10px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+}
+
+#congratulations-content #continue-button:hover {
+    background-color: #7AA5A5;
+    color: #FFFFFF;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+#congratulations-content #restart-button {
+    background-color: #B8D8D8;
+    color: #3D5A80;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 8px;
+    margin-top: 10px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+}
+
+#congratulations-content #restart-button:hover {
+    background-color: #7AA5A5;
+    color: #FFFFFF;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
