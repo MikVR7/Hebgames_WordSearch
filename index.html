@@ -17,14 +17,18 @@
     <script type="module">
         import { Randomizer } from 'https://d12n4cwg3u8b3y.cloudfront.net/Shared/Randomizer.js';
         window.Randomizer = Randomizer;
-    </script>            
+    </script> 
+    <script type="module" src="https://d12n4cwg3u8b3y.cloudfront.net/Shared/Data_GameSequences.js"></script>
+    <script type="module" src="https://d12n4cwg3u8b3y.cloudfront.net/Shared/GameSequenceManager.js" data-game-type="WordSearch">
+        window.GameSequenceManager = GameSequenceManager;
+    </script>        
 
     <!-- load lib -->
             
     <!-- html elements -->
     <header>
         <h1>Gitterrätsel</h1>
-        <p>Suche die unten angeführten Wörter im Gitterrätsel!</p>
+        <p>Suche die unten angeführten Wörter im Gitterrätsel!<br>Die Wörter können in alle Richtungen geschrieben sein.</p>
     </header>
 
     <div id="game-container">
@@ -48,21 +52,13 @@
             <button id="restart-button">Weiter</button>
         </div>
     </div>
-<!-- 
-    <div id="congratulations-screen" class="modal">
-        <div class="content">
-            <congrats-header>Gratuliere!</congrats-header>
-            <congrats-text>Tolle Leistung!</congrats-text>
-            <button id="continue-button">Weiter</button>
-            <button id="restart-button">Nochmal spielen</button>
-        </div>
-    </div> -->
 
     <!-- start game -->
     <script type="module">
         import Game from '/dist/scripts/Game.js';
         document.addEventListener('DOMContentLoaded', () => {
             const game = new Game();
+            game.init();
             game.start();
 
             // Use a small delay to ensure all DOM elements are fully rendered

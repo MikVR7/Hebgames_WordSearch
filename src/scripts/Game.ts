@@ -4,11 +4,12 @@ import { DataEntry } from './Data_WordSearch.js';
 import { dataEntries } from './Data_WordSearch.js';
 declare const Tools: any;
 declare const Randomizer: any;
+declare const GameSequenceManager: any;
 
 export default class Game {
     private uiManager: UIManager;
     private matrixGenerator: MatrixGenerator;
-    private paramText: string;
+    private paramText: string | null = null;
     private dataEntries: { [key: string]: DataEntry } = dataEntries;
     private currentDataEntry!: DataEntry;
     
@@ -24,10 +25,11 @@ export default class Game {
         const gameBoard = document.getElementById('game-board') as HTMLElement;
         const wordsToFindElement = document.getElementById('words-to-find') as HTMLElement;
         const congratulationsScreen = document.getElementById('congratulations-content') as HTMLElement;
-        const headerElement = document.querySelector('header h1') as HTMLElement;
         this.uiManager = new UIManager(gameBoard, wordsToFindElement, congratulationsScreen);
         this.matrixGenerator = new MatrixGenerator();
-        
+    }
+
+    public init() {
         this.paramText = Tools.GetQueryParam('v');
         if(!this.paramText) {
             this.paramText = 'test';
@@ -37,6 +39,7 @@ export default class Game {
         } 
 
         // Set the header text
+        const headerElement = document.querySelector('header h1') as HTMLElement;
         headerElement.textContent = this.currentDataEntry.header;
     }
 
@@ -137,7 +140,7 @@ export default class Game {
 
         const continueButton = document.getElementById('restart-button');
         if (continueButton) {
-            continueButton.addEventListener('click', () => this.resetGame());
+            continueButton.addEventListener('click', () => GameSequenceManager.PlayNextSequenceElement());
         }
     }
 
