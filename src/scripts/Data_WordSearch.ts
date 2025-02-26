@@ -301,4 +301,251 @@ export const dataEntries: { [key: string]: DataEntry } = {
     15
 ),
 
+
+"raunaechte": new DataEntry(
+        "Die Raunächte",
+        10,
+        15,
+        [
+            // Zeitbezüge
+            "rauhnacht", "zwischentage", "thomasnacht", "dreikoenig", "silvester", "neujahr", "advent", "dezember", "januar",
+            
+            // Brauchtum und Rituale
+            "raeuchern", "weihrauch", "orakel", "bleiguss", "traumdeutung", "kerze", "feuer", "ritual", "brauchtum", "tradition",
+            
+            // Mythologische Wesen
+            "perchten", "geister", "wild", "seelen", "krampus", "percht", "gespenst", "hexe", "teufel",
+            
+            // Aktivitäten und Handlungen
+            "raeuchern", "beten", "segnen", "reinigen", "wahrsagen", "traeumen", "meditieren", "fasten", "schweigen", "singen",
+            
+            // Symbolik und Gegenstände
+             "glocke", "maske", "schelle", "rute", "fackel", "spiegel", "kristall", "amulett",
+            
+            // Naturelemente
+            "vollmond", "schnee", "winter", "nebel", "sturm", "nacht", "dunkel", "kalt", "frost", "eis"
+        ],
+        15
+    ),
+    
+    "silvester": new DataEntry(
+        "Silvester und Neujahr",
+        10,
+        15,
+        [
+            // Traditionen und Bräuche
+            "bleiguss", "feuerwerk", "boeller", "rakete", "knaller",
+            "prosit", "neujahr", "mitternacht", "gluecksbringer",
+            "vorsatz", "wunsch", "countdown", "champagner", "sekt",
+            
+            // Glückssymbole
+            "kleeblatt", "hufeisen", "schornstein", "schwein",
+            "glueckspilz", "marienkaefer", "geldbeutel",
+            
+            // Speisen und Getränke
+            "fondue", "raclette", "punsch", "bowle", "krapfen",
+            "linsen", "sauerkraut", "brezel",
+            
+            // Dekoration und Ambiente
+            "konfetti", "luftschlange", "girlande", "kerzen",
+            "tischfeuer", "party", "musik", "tanz",
+            
+            // Zeitbezug
+            "jahreswechsel", "silvester", "dezember", "januar",
+            "kalender", "winterzeit",
+
+            // Wünsche und Grüße
+            "prosit", "glueckwunsch", "gesundheit"
+        ],
+        40
+    ),
+    "dreikoenige": new DataEntry(
+        "Heilige Drei Könige",
+        10,
+        15,
+        [
+            // Die Könige und ihre Gaben
+            "caspar", "melchior", "balthasar",
+            "gold", "weihrauch", "myrrhe",
+            
+            // Religiöse Begriffe
+            "stern", "jesus", "krippe", "bethlehem",
+            
+            // Brauchtum
+            "sternsinger", "krone", "kreide",
+            "segen", "spenden", "gewand",
+            
+            // Zeitbezug
+            "januar", "epiphanie", "weihnachten",
+            "morgenland"
+        ],
+        20
+    ),
+    
+    "wintervoegel": new DataEntry(
+        "Wintervögel",
+        10,
+        15,
+        [
+            // Vogelarten
+            "amsel", "meise", "spatz", "fink", "star", 
+            "rotkehlchen", "drossel", "specht", "elster",
+            "rabe", "bergfink",
+            "sperling", "kohlmeise", "blaumeise", "stieglitz",
+            
+            // Futter und Nahrung
+            "samen", "koerner", "beeren", "nuesse", "rosinen",
+            "insekten", "sonnenblume", "mohn", "hafer", "weizen",
+            
+            // Winterbezug
+            "schnee", "eis", "kaelte", "frost", "winter",
+            "futterhaus", "koernerstange", "futterstelle", "meisenring",
+            
+            // Körperteile und Merkmale
+            "schnabel", "gefieder", "fluegel", "kralle",
+            "federkleid", "vogelspuren", "feder", "nest", "ei",
+            
+            // Verhalten
+            "fliegen", "picken", "singen", "huepfen", "flattern"
+        ],
+        50
+    ),
+    
+    
+    "schi": new DataEntry(
+        "Schifahren",
+        10,
+        15,
+        [
+            // Ausrüstung
+            "ski", "stoecke", "helm", "brille", "handschuhe",
+            "skischuhe", "bindung", "jacke", "hose", "gamaschen",
+            "rucksack", "skipass", "schal", "muetze", "protektor",
+            
+            // Techniken und Fahrstile
+            "pflug", "carving", "wedeln", "schwung", "bremsen",
+            "slalom", "abfahrt", "springen", "kanten", "lift",
+            
+            // Pistenbezug
+            "piste", "schnee", "loipe", "hang", "tal",
+            "berg", "gondel", "sessellift", "schlepplift", "huette",
+            
+            // Schneearten und Bedingungen
+            "pulver", "firn", "eis", "neuschnee", "harsch",
+            "pistenrand", "tiefschnee", "buckelpiste", "gipfel", "lawine",
+            
+            // Skisport und Begriffe
+            "rennen", "training", "skikurs", "lehrer", "gruppe",
+            "anfaenger", "profi", "skitour", "langlauf", "alpin"
+        ],
+        50
+    ),
+    
+    "griechen": new DataEntry(
+        "Antikes Griechenland",
+        10,
+        15,
+        [
+            // Orte und Bauten
+            "athen", "sparta", "tempel", "stadt", "markt",
+            "burg", "theater", "hafen", "berg", "insel",
+            
+            // Menschen und Berufe
+            "koenig", "bauer", "lehrer", "krieger", "buerger",
+            "dichter", "kaiser", "soldat", "senator", "handel",
+            
+            // Alltag und Leben
+            "spiele", "sport", "musik", "kunst", "schule",
+            "wein", "brot", "fest", "tanz", "schiff",
+            
+            // Götter
+            "zeus", "hera", "gott", "apollo", "athene",
+            "sonne", "meer", "blitz", "eule", "pferd",
+            
+            // Waffen und Kampf
+            "schwert", "speer", "schild", "helm", "krieg",
+            "kampf", "mauer", "boot", "sieg",
+            
+            // Bekannte Dinge
+            "olympia", "sage", "gold", "vase", "muenze",
+            "ring", "statue", "toga", "fackel", "krone"
+        ],
+        10
+    ),
+    
+    "das_dass": new DataEntry(
+        "Das und Dass - Wortsearch",
+        10,
+        15,
+        [
+            "artikel",
+            "pronomen",
+            "nebensatz", 
+            "konjunktion",
+            "demonstrativ",
+            "relativ",
+            "welches",
+            "dieses",
+            "jenes",
+            "hauptsatz",
+            "das",
+            "dass"
+        ],
+        12
+    ),
+	 "valentinstag": new DataEntry(
+        "Valentinstag",
+        10,
+        15,
+        [
+	// Geschenke und Symbole
+        "rose", "amor", "ring", "blumen", 
+        "kerze", "karte", "brief", "schmuck",
+        "praline", "teddy",
+        
+        // Romantische Begriffe und Namen
+        "tanz", "musik", "engel", "romeo",
+        "julia", "post", "rot", "cupido",
+        "partner", "kino", "dinner",
+        
+      
+    ],
+    30
+),
+
+
+	"fasching": new DataEntry(
+	"Fasching",
+	10,
+	15,
+	[
+	"maske", "tanz", "narr", "konfetti", "party", "musik", "clown", "hut", "ball", "spass",
+	"krone", "lachen", "prinz", "witz", "keks", "fest", "tanz", "parade", "masken", "krapfen",
+	"hexe", "zirkus", "scherz", "spiel", "singen", "tanzen", "bunt", "toll", "wild", "lustig",
+	"feier", "klub", "verein", "stern", "glanz", "disco", "show", "gold", "kette", "perlen",
+	"schmuck", "schminke", "prank", "trick", "nase", "magie", "wange", "zepter", "strass", "bart"
+	],
+	15
+	),
+	
+	
+	"dsk_fasching": new DataEntry(
+    "Fasching",
+    10,
+    15,
+    [
+        "maske", "tanz", "narr", "konfetti", "party", "musik", "clown", "hut", "ball", "spass",
+        "krone", "lachen", "prinz", "witz", "keks", "fest", "tanz", "parade", "krapfen",
+        "hexe", "zirkus", "scherz", "spiel", "singen", "tanzen", "bunt", "toll", "wild", "lustig",
+        "feier", "klub", "verein", "stern", "glanz", "disco", "show", "gold", "kette", "perlen",
+        "schmuck", "schminke", "prank", "trick", "nase", "magie", "wange", "zepter", "strass", "bart", "zauber", "trank", "kessel", "ritual", "fluch", "besen", "stab", "kristall", "orakel", "mystik", 
+        "elixier", "amulett", "rune", "pendel", "tarot", "magier", "druide", "geist", "kerze", "kugel",
+        "verhexen", "magierin", "schatten", "hexen", "wesen", "zirkel", "kobold", "fee",
+        "nixe", "elf", "troll", "alraune", "hut", "buch", "siegel", "robe", "mantel",
+        "spruch", "formel", "ritual", "nebel", "kräuter", "salbe", "wunder"
+    ],
+    15
+),
+
+
 };

@@ -2,18 +2,63 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title id="page-title">WordSearch</title>
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/dist/styles/styles.css">
-</head>
-<body>
-    <!-- load shared elements -->
-    <script type="module" src="https://d12n4cwg3u8b3y.cloudfront.net/Shared/LoadingScreen.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Montserrat:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        /* Simple loading style */
+        body {
+            visibility: hidden;
+        }
+    </style>
     <script type="module">
+        // Load Tools first to use GetQueryParam
         import { Tools } from 'https://d12n4cwg3u8b3y.cloudfront.net/Shared/Tools.js';
         window.Tools = Tools;
+
+        // Check theme and load appropriate resources
+        const version = Tools.GetQueryParam('v');
+        
+        // Function to show body after CSS is loaded
+        function showBody() {
+            document.body.style.visibility = 'visible';
+        }
+        
+        if (version && version.startsWith('dsk_')) {
+            // Add theme class to body
+            document.body.classList.add('theme-dsk');
+            
+            // First load base styles
+            const baseLink = document.createElement('link');
+            baseLink.rel = 'stylesheet';
+            baseLink.href = 'dist/styles/styles.css';
+            document.head.appendChild(baseLink);
+            
+            // Then load DSK theme CSS which will override base styles
+            const themeLink = document.createElement('link');
+            themeLink.rel = 'stylesheet';
+            themeLink.href = 'dist/styles/dsk/theme-dachsteinkoenig.css';
+            themeLink.onload = showBody; // Only show body after theme is loaded
+            document.head.appendChild(themeLink);
+            
+            // Load DSK-specific loading screen
+            import('https://d12n4cwg3u8b3y.cloudfront.net/Shared/LoadingScreenDSK.js');
+        } else {
+            // Load default styles for non-themed version
+            const baseLink = document.createElement('link');
+            baseLink.rel = 'stylesheet';
+            baseLink.href = 'dist/styles/styles.css';
+            baseLink.onload = showBody;
+            document.head.appendChild(baseLink);
+            
+            // Load default loading screen
+            import('https://d12n4cwg3u8b3y.cloudfront.net/Shared/LoadingScreen.js');
+        }
     </script>
+</head>
+<body>
+    <div class="background-pattern"></div><!-- load shared elements -->
     <script type="module">
         import { Randomizer } from 'https://d12n4cwg3u8b3y.cloudfront.net/Shared/Randomizer.js';
         window.Randomizer = Randomizer;

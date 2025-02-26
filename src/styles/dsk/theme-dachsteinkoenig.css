@@ -1,0 +1,266 @@
+/* Theme override for Dachsteinkoenig */
+:root {
+    /* Base theme colors */
+    --background-color: #7090a9;
+    --background-color-destination: #ffefdd;
+    --background-color-source: #ffffff;
+    --background-color-button: #ffba10;
+    /* Instead of filtering, we can use a pre-whitened version of the logo or use a mask-image */
+    --background-image: none;  /* We'll handle the background differently */
+    --text-color: #2c3e50;  /* Darker color for content on white background */
+    --text-color-title: #ffffff;  /* Bright color for titles on the background color */
+    --logo-image: none;
+    
+    /* Button colors */
+    --button-bg: #4a6583;
+    --button-border: #5d7ea3;
+    --button-text: #ffffff;
+    --button-hover-bg: #5d7ea3;
+    /*--button-special-bg: #a3b8cc;*/
+    --button-special-text: #2c3e50;
+    --button-special-hover-bg: #5d7ea3;
+    --button-special-hover-text: #ffffff;
+    
+    /* Logo images */
+    --logo-simple: url('styles/dsk/dsk_logo_simple.svg');
+    --logo-whole: url('styles/dsk/dsk_logo_whole.svg');
+    --logo-image: var(--logo-whole);  /* This will be used by LoadingScreenDSK */
+    
+    /* Content area colors */
+    --content-bg: transparent;
+    --content-text: var(--text-color);
+    --fact-text: var(--text-color);
+    --header-text: var(--text-color-title);  /* Use the bright title color for headers */
+    --title-text: var(--text-color-title);
+    
+    /* Loading screen specific variables */
+    --loading-screen-bg: var(--background-color);
+    --loading-screen-text: var(--text-color-title);  /* Use bright color for loading screen text */
+    --loading-spinner-color: var(--text-color-title);
+    --loading-spinner-bg: rgba(255, 255, 255, 0.2);
+}
+
+/* Override base styles filter */
+.theme-dsk body, .theme-dsk html {
+    filter: none !important;
+}
+
+/* Set base background color */
+.theme-dsk body {
+    background-color: var(--background-color);
+    position: relative; /* Ensure relative positioning for absolute children */
+}
+
+/* Remove the existing ::before pattern that's not working */
+.theme-dsk body::before {
+    display: none; /* Disable the existing pattern */
+}
+
+/* Add a new class to index.html for the background pattern */
+.theme-dsk .background-pattern {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: var(--logo-simple);
+    background-repeat: repeat;
+    background-size: 220px 220px;
+    background-position: 80px 80px;
+    filter: brightness(0) invert(1);
+    opacity: 0.10;
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* Make logo SVG white */
+.theme-dsk #loading-screen .logo {
+    filter: brightness(0) invert(1);
+    background-image: var(--logo-whole);
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* Override letter styling to make text black and background white */
+.theme-dsk .letter {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #ffffff;
+    border: 1px solid #cccccc;
+    color: #000000;
+    font-weight: bold;
+    font-size: large;
+    cursor: pointer;
+    user-select: none;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    opacity: 1;
+}
+
+.theme-dsk .letter.selected {
+    background-color: #a3b8cc;
+    color: #000000;
+}
+
+.theme-dsk .letter.found {
+    background-color: var(--background-color-button);
+    color: #ffffff;
+}
+
+.theme-dsk .letter.temp-selected {
+    background-color: #a3b8cc;
+    color: #000000;
+}
+
+.theme-dsk #game-container {
+    position: relative;
+    z-index: 1;
+    min-height: 100px;
+    display: flex;
+    background: var(--content-bg);
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 800px;
+    justify-content: normal;
+}
+
+/* Fix for word-lists container */
+.theme-dsk #word-lists {
+    width: 90%;
+    /*min-height: 50px; /* Increased minimum height */
+    max-width: 800px;
+    background-color: var(--background-color-source);
+    border: 2px solid var(--button-border);
+    /*padding: 15px;
+    margin: 20px auto;*/
+    display: flex;
+    flex-wrap: wrap;
+    /*justify-content: center;
+    align-content: flex-start;
+    box-sizing: border-box;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);*/
+}
+
+.theme-dsk #words-to-find {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+    /*gap: 8px;*/
+    padding: 5px;
+}
+
+.theme-dsk .word {
+    background-color: var(--background-color-button);
+    color: var(--background-color-source);
+    border-radius: 15px;
+    padding: 6px 12px;
+    margin: 3px;
+    font-weight: 600;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.theme-dsk .word.found {
+    background-color: var(--button-hover-bg);
+    color: white;
+    text-decoration: line-through;
+    opacity: 0.7;
+}
+
+.theme-dsk #scrollable-content {
+    min-height: min-content;
+    display: flex;
+    flex-direction: column;
+    opacity: 1;
+    visibility: visible;
+    color: var(--content-text);
+    overflow: visible;
+    height: auto;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.theme-dsk #fact-screen {
+    min-height: 100px;
+    color: var(--fact-text);
+}
+
+/* Text colors */
+.theme-dsk h1 {
+    color: var(--title-text);
+}
+
+.theme-dsk h2 {
+    color: var(--text-color);
+}
+
+.theme-dsk p {
+    color: var(--title-text);
+}
+
+/* Loading screen override */
+.theme-dsk #loading-screen {
+    display: flex !important;
+    background-color: var(--background-color) !important;
+}
+
+/* Header style override */
+.theme-dsk #header {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: var(--text-color); /* Slightly darker than background, good contrast on white */
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 15px;
+    text-align: center;
+    font-family: 'Montserrat', sans-serif;
+}
+
+/* Button styles override */
+.theme-dsk button {
+    display: inline-block;
+    height: 40px;
+    background-color: var(--button-bg);
+    border: 1px solid var(--button-border);
+    border-radius: 4px;
+    color: var(--button-text);
+    cursor: pointer;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 40px;
+    padding: 0 20px;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.theme-dsk button:hover {
+    background-color: var(--button-hover-bg);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.theme-dsk #continue-button, .theme-dsk #restart-button {
+    background-color: var(--button-special-bg);
+    color: var(--button-special-text);
+    border: 1px solid var(--button-border);
+    margin-top: 20px;
+}
+
+.theme-dsk #continue-button:hover, .theme-dsk #restart-button:hover {
+    background-color: var(--button-special-hover-bg);
+    color: var(--button-special-hover-text);
+} 
+
+.theme-dsk #game-board {
+    background-color: var(--background-color-destination);
+    opacity: 1;
+}

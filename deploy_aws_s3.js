@@ -96,9 +96,7 @@ function processFileContent(content, filePath) {
         content = content.replace(
             /(src|href)=["']((?!http:\/\/|https:\/\/)([^"']+\.(js|css|png|jpg|gif|svg)))["']/g, 
             (match, attr, url) => {
-                // Remove leading slash if present
                 url = url.replace(/^\//, '');
-                // Remove 'dist/' from the beginning of the URL if present
                 url = url.replace(/^dist\//, '');
                 let newUrl = `https://${CLOUDFRONT_DOMAIN}/${S3_FOLDER}${url}?v=${deploymentTimestamp}`;
                 console.log(`Updated URL: ${match} -> ${attr}="${newUrl}"`);
@@ -180,7 +178,103 @@ function processFileContent(content, filePath) {
                     return importStatement;
                 }
             );
+            
+            // Fix import statements for loading screens
+            content = content.replace(
+                /import\(['"]https:\/\/d12n4cwg3u8b3y\.cloudfront\.net\/Shared\/LoadingScreen(DSK)?\.js['"]\)/g,
+                (match, dsk) => {
+                    let newImport = `import('https://d12n4cwg3u8b3y.cloudfront.net/Shared/LoadingScreen${dsk || ''}.js?v=${deploymentTimestamp}')`;
+                    console.log(`Updated loading screen import: ${match} -> ${newImport}`);
+                    return newImport;
+                }
+            );
+            
+            // Fix shared script tags
+            content = content.replace(
+                /<script type="module" src="https:\/\/d12n4cwg3u8b3y\.cloudfront\.net\/Shared\/([^"]+)"><\/script>/g,
+                (match, scriptPath) => {
+                    let newScriptTag = `<script type="module" src="https://d12n4cwg3u8b3y.cloudfront.net/Shared/${scriptPath}?v=${deploymentTimestamp}"></script>`;
+                    console.log(`Updated shared script tag: ${match} -> ${newScriptTag}`);
+                    return newScriptTag;
+                }
+            );
+            
+            // Fix Game.js import
+            content = content.replace(
+                /import Game from ['"]\/dist\/scripts\/Game\.js['"]/g,
+                (match) => {
+                    let newImport = `import Game from 'https://${CLOUDFRONT_DOMAIN}/${S3_FOLDER}scripts/Game.js?v=${deploymentTimestamp}'`;
+                    console.log(`Updated Game.js import: ${match} -> ${newImport}`);
+                    return newImport;
+                }
+            );
+            
+            // Fix Tools import
+            content = content.replace(
+                /import \{ Tools \} from ['"]https:\/\/d12n4cwg3u8b3y\.cloudfront\.net\/Shared\/Tools\.js['"]/g,
+                (match) => {
+                    let newImport = `import { Tools } from 'https://d12n4cwg3u8b3y.cloudfront.net/Shared/Tools.js?v=${deploymentTimestamp}'`;
+                    console.log(`Updated Tools import: ${match} -> ${newImport}`);
+                    return newImport;
+                }
+            );
         }
+        
+        // Generic replacement for any CSS file path in JavaScript code
+        content = content.replace(
+            /(\w+Link)\.href\s*=\s*['"]dist\/([^"']+\.css)['"]/g,
+            (match, linkVar, cssPath) => {
+                let newUrl = `https://${CLOUDFRONT_DOMAIN}/${S3_FOLDER}${cssPath}?v=${deploymentTimestamp}`;
+                console.log(`Updated CSS path in JS: ${match} -> ${linkVar}.href = "${newUrl}"`);
+                return `${linkVar}.href = "${newUrl}"`;
+            }
+        );
+
+        // Add this new replacement for CSS url() functions
+        content = content.replace(
+            /url\(['"]?((?!http:\/\/|https:\/\/)([^'"()]+\.(png|jpg|gif|svg)))['"]?\)/g,
+            (match, url) => {
+                // Don't strip the path, just clean up any leading slashes
+                url = url.replace(/^\/+/, '');
+                let newUrl = `https://${CLOUDFRONT_DOMAIN}/${S3_FOLDER}${url}?v=${deploymentTimestamp}`;
+                console.log(`Updated CSS URL: ${match} -> url("${newUrl}")`);
+                return `url("${newUrl}")`;
+            }
+        );
+
+        // Remove this specific pattern for theme links as it's redundant with the generic pattern above
+        // content = content.replace(
+        //     /themeLink\.href\s*=\s*['"]dist\/([^'"]+\.css)['"]/g,
+        //     (match, path) => {
+        //         let newUrl = `https://${CLOUDFRONT_DOMAIN}/${S3_ROOT_FOLDER}/${S3_SUB_FOLDER}/${path}?v=${deploymentTimestamp}`;
+        //         console.log(`Updated theme link: ${match} -> themeLink.href = "${newUrl}"`);
+        //         return `themeLink.href = "${newUrl}"`;
+        //     }
+        // );
+
+        // Add this specific replacement for JavaScript files
+        if (fileExt === '.js') {
+            content = content.replace(
+                /link\.href\s*=\s*['"](.\/styles\/[^'"]+)['"]/g,
+                (match, url) => {
+                    url = url.replace(/^\.\//, '');
+                    let newUrl = `https://${CLOUDFRONT_DOMAIN}/${S3_FOLDER}${url}?v=${deploymentTimestamp}`;
+                    console.log(`Updated JS URL: ${match} -> link.href = "${newUrl}"`);
+                    return `link.href = "${newUrl}"`;
+                }
+            );
+        }
+
+        // Add versioning to loading screen imports
+        content = content.replace(
+            /import\(['"]https:\/\/d12n4cwg3u8b3y\.cloudfront\.net\/[^'"]+['"]\)/g,
+            (match) => {
+                if (!match.includes('?v=')) {
+                    return match.replace('.js', `.js?v=${deploymentTimestamp}`);
+                }
+                return match;
+            }
+        );
 
         if (content !== originalContent) {
             console.log(`File ${filePath} was modified.`);
@@ -204,10 +298,9 @@ function uploadFileToS3(filePath, s3Key) {
             }
 
             const contentType = getContentType(filePath);
-            const isHtml = contentType === 'text/html';
-            const isJs = filePath.endsWith('.js');
-
-            if (isHtml || isJs || filePath.endsWith('.css')) {
+            
+            // Only process HTML, JS, and CSS files for URL replacements
+            if (filePath.endsWith('.html') || filePath.endsWith('.js') || filePath.endsWith('.css')) {
                 fileContent = processFileContent(fileContent.toString(), filePath);
             }
 
@@ -216,7 +309,9 @@ function uploadFileToS3(filePath, s3Key) {
                 Key: s3Key,
                 Body: fileContent,
                 ContentType: contentType,
-                CacheControl: isHtml || isJs ? 'no-cache, no-store, must-revalidate' : 'public, max-age=31536000, immutable'
+                CacheControl: filePath.endsWith('.html') || filePath.endsWith('.js') 
+                    ? 'no-cache, no-store, must-revalidate' 
+                    : 'public, max-age=31536000, immutable'
             };
 
             s3.upload(params, (err, data) => {
@@ -242,6 +337,7 @@ function getContentType(filePath) {
         '.json': 'application/json',
         '.png': 'image/png',
         '.jpg': 'image/jpeg',
+        '.jpeg': 'image/jpeg',
         '.gif': 'image/gif',
         '.svg': 'image/svg+xml',
         '.ico': 'image/x-icon'
