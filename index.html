@@ -17,8 +17,13 @@
         import { Tools } from 'https://d12n4cwg3u8b3y.cloudfront.net/Shared/Tools.js';
         window.Tools = Tools;
 
-        // Check theme and load appropriate resources
-        const version = Tools.GetQueryParam('v');
+        let version = Tools.GetQueryParam('v');
+    
+        // If version is empty or null, try to get it from the 's' parameter
+        if (!version) {
+            version = Tools.GetQueryParam('s');
+            console.log("No 'v' parameter found, using 's' parameter instead:", version);
+        }
         
         // Function to show body after CSS is loaded
         function showBody() {
